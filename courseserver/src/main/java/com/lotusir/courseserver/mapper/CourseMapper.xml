@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lotusir.courseserver.mapper.CourseMapper">
+
+  <resultMap id="BaseResultMap" type="com.lotusir.courseserver.domain.Course">
+    <id column="course_id" jdbcType="INTEGER" property="courseId" />
+    <result column="course_name" jdbcType="CHAR" property="courseName" />
+    <result column="course_credit" jdbcType="INTEGER" property="courseCredit" />
+    <result column="course_dept" jdbcType="CHAR" property="courseDept" />
+    <result column="course_teacher" jdbcType="CHAR" property="courseTeacher" />
+  </resultMap>
+
+  <resultMap id="HistoryResultMap" type="com.lotusir.courseserver.domain.CourseHistory">
+    <id column="course_id" jdbcType="INTEGER" property="courseId" />
+    <result column="course_name" jdbcType="CHAR" property="courseName" />
+    <result column="course_credit" jdbcType="INTEGER" property="courseCredit" />
+    <result column="grade" jdbcType="CHAR" property="grade" />
+    <result column="course_teacher" jdbcType="CHAR" property="courseTeacher" />
+  </resultMap>
+
+  <resultMap id="AvrGradeResultMap" type="com.lotusir.courseserver.domain.AvrGrade">
+    <result column="course_name" jdbcType="CHAR" property="courseName" />
+    <result column="grade" jdbcType="CHAR" property="grade" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    course_id, course_name, course_credit, course_dept, course_teacher
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_course
+    where course_id = #{courseId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_course
+    where course_id = #{courseId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.lotusir.courseserver.domain.Course">
+    insert into t_course (course_id, course_name, course_credit, 
+      course_dept, course_teacher)
+    values (#{courseId,jdbcType=INTEGER}, #{courseName,jdbcType=CHAR}, #{courseCredit,jdbcType=INTEGER}, 
+      #{courseDept,jdbcType=CHAR}, #{courseTeacher,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.lotusir.courseserver.domain.Course">
+    insert into t_course
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="courseId != null">
+        course_id,
+      </if>
+      <if test="courseName != null">
+        course_name,
+      </if>
+      <if test="courseCredit != null">
+        course_credit,
+      </if>
+      <if test="courseDept != null">
+        course_dept,
+      </if>
+      <if test="courseTeacher != null">
+        course_teacher,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="courseId != null">
+        #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="courseName != null">
+        #{courseName,jdbcType=CHAR},
+      </if>
+      <if test="courseCredit != null">
+        #{courseCredit,jdbcType=INTEGER},
+      </if>
+      <if test="courseDept != null">
+        #{courseDept,jdbcType=CHAR},
+      </if>
+      <if test="courseTeacher != null">
+        #{courseTeacher,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lotusir.courseserver.domain.Course">
+    update t_course
+    <set>
+      <if test="courseName != null">
+        course_name = #{courseName,jdbcType=CHAR},
+      </if>
+      <if test="courseCredit != null">
+        course_credit = #{courseCredit,jdbcType=INTEGER},
+      </if>
+      <if test="courseDept != null">
+        course_dept = #{courseDept,jdbcType=CHAR},
+      </if>
+      <if test="courseTeacher != null">
+        course_teacher = #{courseTeacher,jdbcType=CHAR},
+      </if>
+    </set>
+    where course_id = #{courseId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lotusir.courseserver.domain.Course">
+    update t_course
+    set course_name = #{courseName,jdbcType=CHAR},
+      course_credit = #{courseCredit,jdbcType=INTEGER},
+      course_dept = #{courseDept,jdbcType=CHAR},
+      course_teacher = #{courseTeacher,jdbcType=CHAR}
+    where course_id = #{courseId,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectAllCourses" parameterType="com.lotusir.courseserver.domain.Course" resultMap="BaseResultMap">
+    select * from t_course
+  </select>
+
+  <select id="selectByStudentId" parameterType="com.lotusir.courseserver.domain.Course" resultMap="BaseResultMap">
+    select * from t_course where course_id in
+    (select course_id from t_student_course where student_id = #{studentId,jdbcType=INTEGER} and grade is null)
+  </select>
+
+  <select id="deSelectByStudentId" parameterType="com.lotusir.courseserver.domain.Course" resultMap="BaseResultMap">
+    select * from t_course where course_id not in
+    (select course_id from t_student_course where student_id = #{studentId,jdbcType=INTEGER})
+  </select>
+
+  <select id="selectCourseHistory" parameterType="com.lotusir.courseserver.domain.CourseHistory" resultMap="HistoryResultMap">
+    select t_course.course_id,course_name,course_credit,course_teacher,grade from t_course join t_student_course on t_course.course_id = t_student_course.course_id
+    where t_course.course_id in (select course_id from t_student_course where student_id = #{stdentId,jdbcType=INTEGER} and grade is not null)
+    and student_id = #{studentId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectAllAvrGrade" parameterType="com.lotusir.courseserver.domain.AvrGrade" resultMap="AvrGradeResultMap">
+    select a.grade,t_course.course_name from t_course join
+    (select AVG(grade) as grade,t_course.course_id from t_course join t_student_course on t_course.course_id = t_student_course.course_id group by t_course.course_id) as a
+    on t_course.course_id = a.course_id
+  </select>
+
+
+</mapper>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lotusir.courseserver.mapper.SelectionRecordMapper">
+  <resultMap id="BaseResultMap" type="com.lotusir.courseserver.domain.SelectionRecord">
+    <id column="student_id" jdbcType="INTEGER" property="studentId" />
+    <id column="course_id" jdbcType="INTEGER" property="courseId" />
+    <result column="grade" jdbcType="INTEGER" property="grade" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    student_id, course_id, grade
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="com.lotusir.courseserver.domain.SelectionRecordKey" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_student_course
+    where student_id = #{studentId,jdbcType=INTEGER}
+      and course_id = #{courseId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.lotusir.courseserver.domain.SelectionRecordKey">
+    delete from t_student_course
+    where student_id = #{studentId,jdbcType=INTEGER}
+      and course_id = #{courseId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.lotusir.courseserver.domain.SelectionRecord">
+    insert into t_student_course (student_id, course_id, grade
+      )
+    values (#{studentId,jdbcType=INTEGER}, #{courseId,jdbcType=INTEGER}, #{grade,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.lotusir.courseserver.domain.SelectionRecord">
+    insert into t_student_course
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="studentId != null">
+        student_id,
+      </if>
+      <if test="courseId != null">
+        course_id,
+      </if>
+      <if test="grade != null">
+        grade,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="studentId != null">
+        #{studentId,jdbcType=INTEGER},
+      </if>
+      <if test="courseId != null">
+        #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="grade != null">
+        #{grade,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lotusir.courseserver.domain.SelectionRecord">
+    update t_student_course
+    <set>
+      <if test="grade != null">
+        grade = #{grade,jdbcType=INTEGER},
+      </if>
+    </set>
+    where student_id = #{studentId,jdbcType=INTEGER}
+      and course_id = #{courseId,jdbcType=INTEGER}
+  </update>
+
+  <update id="updateByPrimaryKey" parameterType="com.lotusir.courseserver.domain.SelectionRecord">
+    update t_student_course
+    set grade = #{grade,jdbcType=INTEGER}
+    where student_id = #{studentId,jdbcType=INTEGER}
+      and course_id = #{courseId,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectByStudentId" parameterType="com.lotusir.courseserver.domain.SelectionRecordKey" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_student_course
+    where student_id = #{studentId,jdbcType=INTEGER}
+  </select>
+
+  <delete id="deleteByStudentId" parameterType="java.lang.Integer">
+    delete from t_student_course where student_id = #{studentId}
+  </delete>
+</mapper>
