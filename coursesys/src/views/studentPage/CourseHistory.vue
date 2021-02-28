@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div style="text-align: center">
         <div>选修历史</div>
         <div class="tableContainer">
             <el-table :data="courseHistories" stripe>
